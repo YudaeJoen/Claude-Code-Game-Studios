@@ -1,0 +1,231 @@
+{
+  "_generated_by": "tools/opencode/generate-adapter.py",
+  "agents": {
+    "accessibility-specialist": {
+      "maxTurns": 10
+    },
+    "ai-programmer": {
+      "maxTurns": 20
+    },
+    "analytics-engineer": {
+      "maxTurns": 20
+    },
+    "art-director": {
+      "maxTurns": 20
+    },
+    "audio-director": {
+      "maxTurns": 20
+    },
+    "community-manager": {
+      "maxTurns": 10
+    },
+    "creative-director": {
+      "maxTurns": 30
+    },
+    "devops-engineer": {
+      "maxTurns": 10
+    },
+    "economy-designer": {
+      "maxTurns": 20
+    },
+    "engine-programmer": {
+      "maxTurns": 20
+    },
+    "game-designer": {
+      "maxTurns": 20
+    },
+    "gameplay-programmer": {
+      "maxTurns": 20
+    },
+    "godot-csharp-specialist": {
+      "maxTurns": 20
+    },
+    "godot-gdextension-specialist": {
+      "maxTurns": 20
+    },
+    "godot-gdscript-specialist": {
+      "maxTurns": 20
+    },
+    "godot-shader-specialist": {
+      "maxTurns": 20
+    },
+    "godot-specialist": {
+      "maxTurns": 20
+    },
+    "lead-programmer": {
+      "maxTurns": 20
+    },
+    "level-designer": {
+      "maxTurns": 20
+    },
+    "live-ops-designer": {
+      "maxTurns": 20
+    },
+    "localization-lead": {
+      "maxTurns": 20
+    },
+    "narrative-director": {
+      "maxTurns": 20
+    },
+    "network-programmer": {
+      "maxTurns": 20
+    },
+    "performance-analyst": {
+      "maxTurns": 20
+    },
+    "producer": {
+      "maxTurns": 30
+    },
+    "prototyper": {
+      "maxTurns": 25
+    },
+    "qa-lead": {
+      "maxTurns": 20
+    },
+    "qa-tester": {
+      "maxTurns": 10
+    },
+    "release-manager": {
+      "maxTurns": 20
+    },
+    "security-engineer": {
+      "maxTurns": 20
+    },
+    "sound-designer": {
+      "maxTurns": 10
+    },
+    "systems-designer": {
+      "maxTurns": 20
+    },
+    "technical-artist": {
+      "maxTurns": 20
+    },
+    "technical-director": {
+      "maxTurns": 30
+    },
+    "tools-programmer": {
+      "maxTurns": 20
+    },
+    "ue-blueprint-specialist": {
+      "maxTurns": 20
+    },
+    "ue-gas-specialist": {
+      "maxTurns": 20
+    },
+    "ue-replication-specialist": {
+      "maxTurns": 20
+    },
+    "ue-umg-specialist": {
+      "maxTurns": 20
+    },
+    "ui-programmer": {
+      "maxTurns": 20
+    },
+    "unity-addressables-specialist": {
+      "maxTurns": 20
+    },
+    "unity-dots-specialist": {
+      "maxTurns": 20
+    },
+    "unity-shader-specialist": {
+      "maxTurns": 20
+    },
+    "unity-specialist": {
+      "maxTurns": 20
+    },
+    "unity-ui-specialist": {
+      "maxTurns": 20
+    },
+    "unreal-specialist": {
+      "maxTurns": 20
+    },
+    "ux-designer": {
+      "maxTurns": 20
+    },
+    "world-builder": {
+      "maxTurns": 20
+    },
+    "writer": {
+      "maxTurns": 20
+    }
+  },
+  "rules": [
+    {
+      "file": ".claude/rules/ai-code.md",
+      "paths": [
+        "src/ai/**"
+      ],
+      "body": "# AI Code Rules\n\n- AI update budget: 2ms per frame maximum \u2014 profile to verify\n- All AI parameters must be tunable from data files (behavior tree weights, perception ranges, timers)\n- AI must be debuggable: implement visualization hooks for all AI state (paths, perception cones, decision trees)\n- AI should telegraph intentions \u2014 players need time to read and react\n- Prefer utility-based or behavior tree approaches over hard-coded if/else chains\n- Group AI must support formation, flanking, and role assignment from data\n- All AI state machines must log transitions for debugging\n- Never trust AI input from the network without validation"
+    },
+    {
+      "file": ".claude/rules/data-files.md",
+      "paths": [
+        "assets/data/**"
+      ],
+      "body": "# Data File Rules\n\n- All JSON files must be valid JSON \u2014 broken JSON blocks the entire build pipeline\n- File naming: lowercase with underscores only, following `[system]_[name].json` pattern\n- Every data file must have a documented schema (either JSON Schema or documented in the corresponding design doc)\n- Numeric values must include comments or companion docs explaining what the numbers mean\n- Use consistent key naming: camelCase for keys within JSON files\n- No orphaned data entries \u2014 every entry must be referenced by code or another data file\n- Version data files when making breaking schema changes\n- Include sensible defaults for all optional fields\n\n## Examples\n\n**Correct** naming and structure (`combat_enemies.json`):\n\n```json\n{\n  \"goblin\": {\n    \"baseHealth\": 50,\n    \"baseDamage\": 8,\n    \"moveSpeed\": 3.5,\n    \"lootTable\": \"loot_goblin_common\"\n  },\n  \"goblin_chief\": {\n    \"baseHealth\": 150,\n    \"baseDamage\": 20,\n    \"moveSpeed\": 2.8,\n    \"lootTable\": \"loot_goblin_rare\"\n  }\n}\n```\n\n**Incorrect** (`EnemyData.json`):\n\n```json\n{\n  \"Goblin\": { \"hp\": 50 }\n}\n```\n\nViolations: uppercase filename, uppercase key, no `[system]_[name]` pattern, missing required fields."
+    },
+    {
+      "file": ".claude/rules/design-docs.md",
+      "paths": [
+        "design/gdd/**"
+      ],
+      "body": "# Design Document Rules\n\n- Every design document MUST contain these 8 sections: Overview, Player Fantasy, Detailed Rules, Formulas, Edge Cases, Dependencies, Tuning Knobs, Acceptance Criteria\n- Formulas must include variable definitions, expected value ranges, and example calculations\n- Edge cases must explicitly state what happens, not just \"handle gracefully\"\n- Dependencies must be bidirectional \u2014 if system A depends on B, B's doc must mention A\n- Tuning knobs must specify safe ranges and what gameplay aspect they affect\n- Acceptance criteria must be testable \u2014 a QA tester must be able to verify pass/fail\n- No hand-waving: \"the system should feel good\" is not a valid specification\n- Balance values must link to their source formula or rationale\n- Design documents MUST be written incrementally: create skeleton first, then fill\n  each section one at a time with user approval between sections. Write each\n  approved section to the file immediately to persist decisions and manage context"
+    },
+    {
+      "file": ".claude/rules/engine-code.md",
+      "paths": [
+        "src/core/**"
+      ],
+      "body": "# Engine Code Rules\n\n- ZERO allocations in hot paths (update loops, rendering, physics) \u2014 pre-allocate, pool, reuse\n- All engine APIs must be thread-safe OR explicitly documented as single-thread-only\n- Profile before AND after every optimization \u2014 document the measured numbers\n- Engine code must NEVER depend on gameplay code (strict dependency direction: engine <- gameplay)\n- Every public API must have usage examples in its doc comment\n- Changes to public interfaces require a deprecation period and migration guide\n- Use RAII / deterministic cleanup for all resources\n- All engine systems must support graceful degradation\n- Before writing engine API code, consult `docs/engine-reference/` for the current engine version and verify APIs against the reference docs\n\n## Examples\n\n**Correct** (zero-alloc hot path):\n\n```gdscript\n# Pre-allocated array reused each frame\nvar _nearby_cache: Array[Node3D] = []\n\nfunc _physics_process(delta: float) -> void:\n    _nearby_cache.clear()  # Reuse, don't reallocate\n    _spatial_grid.query_radius(position, radius, _nearby_cache)\n```\n\n**Incorrect** (allocating in hot path):\n\n```gdscript\nfunc _physics_process(delta: float) -> void:\n    var nearby: Array[Node3D] = []  # VIOLATION: allocates every frame\n    nearby = get_tree().get_nodes_in_group(\"enemies\")  # VIOLATION: tree query every frame\n```"
+    },
+    {
+      "file": ".claude/rules/gameplay-code.md",
+      "paths": [
+        "src/gameplay/**"
+      ],
+      "body": "# Gameplay Code Rules\n\n- ALL gameplay values MUST come from external config/data files, NEVER hardcoded\n- Use delta time for ALL time-dependent calculations (frame-rate independence)\n- NO direct references to UI code \u2014 use events/signals for cross-system communication\n- Every gameplay system must implement a clear interface\n- State machines must have explicit transition tables with documented states\n- Write unit tests for all gameplay logic \u2014 separate logic from presentation\n- Document which design doc each feature implements in code comments\n- No static singletons for game state \u2014 use dependency injection\n\n## Examples\n\n**Correct** (data-driven):\n\n```gdscript\nvar damage: float = config.get_value(\"combat\", \"base_damage\", 10.0)\nvar speed: float = stats_resource.movement_speed * delta\n```\n\n**Incorrect** (hardcoded):\n\n```gdscript\nvar damage: float = 25.0   # VIOLATION: hardcoded gameplay value\nvar speed: float = 5.0      # VIOLATION: not from config, not using delta\n```"
+    },
+    {
+      "file": ".claude/rules/narrative.md",
+      "paths": [
+        "design/narrative/**"
+      ],
+      "body": "# Narrative Rules\n\n- All new lore must be cross-referenced against existing lore for contradictions\n- Every lore entry must specify canon level: Established / Provisional / Under Review\n- Character dialogue must match the voice profile defined for that character\n- World rules (what is possible/impossible) must be explicitly documented and consistent\n- Mysteries must have documented \"true answers\" even if players never learn them\n- Faction motivations, relationships, and power structures must be internally logical\n- All narrative text must be localization-ready: no idioms that don't translate, named placeholders for variables\n- No line of dialogue should exceed 120 characters for dialogue box constraints"
+    },
+    {
+      "file": ".claude/rules/network-code.md",
+      "paths": [
+        "src/networking/**"
+      ],
+      "body": "# Network Code Rules\n\n- Server is AUTHORITATIVE for all gameplay-critical state \u2014 never trust the client\n- All network messages must be versioned for forward/backward compatibility\n- Client predicts locally, reconciles with server \u2014 implement rollback for mispredictions\n- Handle disconnection, reconnection, and host migration gracefully\n- Rate-limit all network logging to prevent log flooding\n- All networked values must specify replication strategy: reliable/unreliable, frequency, interpolation\n- Bandwidth budget: define and track per-message-type bandwidth usage\n- Security: validate all incoming packet sizes and field ranges"
+    },
+    {
+      "file": ".claude/rules/prototype-code.md",
+      "paths": [
+        "prototypes/**"
+      ],
+      "body": "# Prototype Code Standards (Relaxed)\n\nPrototypes are throwaway code for validating ideas. Standards are intentionally\nrelaxed to maximize iteration speed. The goal is learning, not production quality.\n\n## What's Allowed in Prototypes\n- Hardcoded values (no need for data-driven config)\n- Minimal or no doc comments\n- Simple architecture (no dependency injection required)\n- Singletons and global state\n- Copy-pasted code (no need for abstraction)\n- Debug output left in place\n- Placeholder art and audio\n- Quick-and-dirty solutions\n\n## What's Still Required\n- Each prototype lives in its own subdirectory: `prototypes/[name]/`\n- Every prototype MUST have a `README.md` with:\n  - What hypothesis is being tested\n  - How to run the prototype\n  - Current status (in-progress / concluded)\n  - Findings (updated when prototype concludes)\n- No production code may reference or import from `prototypes/`\n- Prototypes must not modify files outside `prototypes/`\n- Prototypes must not be deployed or shipped\n\n## When a Prototype Succeeds\nIf a prototype validates a concept and the feature moves to production:\n1. The prototype code is NOT migrated directly \u2014 it is rewritten to production standards\n2. The prototype `README.md` findings inform the production design document\n3. The prototype directory is preserved for reference but never extended\n\n## Cleanup\nConcluded prototypes should be archived or deleted after findings are captured.\nNever let prototype code grow into production code through incremental \"cleanup.\""
+    },
+    {
+      "file": ".claude/rules/shader-code.md",
+      "paths": [
+        "assets/shaders/**"
+      ],
+      "body": "# Shader Code Standards\n\nAll shader files in `assets/shaders/` must follow these standards to maintain\nvisual quality, performance, and cross-platform compatibility.\n\n## Naming Conventions\n- File naming: `[type]_[category]_[name].[ext]`\n  - `spatial_env_water.gdshader` (Godot)\n  - `SG_Env_Water` (Unity Shader Graph)\n  - `M_Env_Water` (Unreal Material)\n- Use descriptive names that indicate the material purpose\n- Prefix with shader type: `spatial_`, `canvas_`, `particles_`, `post_`\n\n## Code Quality\n- All uniforms/parameters must have descriptive names and appropriate hints\n- Group related parameters (Godot: `group_uniforms`, Unity: `[Header]`, Unreal: Category)\n- Comment non-obvious calculations (especially math-heavy sections)\n- No magic numbers \u2014 use named constants or documented uniform values\n- Include authorship and purpose comment at the top of each shader file\n\n## Performance Requirements\n- Document the target platform and complexity budget for each shader\n- Use appropriate precision: `half`/`mediump` on mobile where full precision isn't needed\n- Minimize texture samples in fragment shaders\n- Avoid dynamic branching in fragment shaders \u2014 use `step()`, `mix()`, `smoothstep()`\n- No texture reads inside loops\n- Two-pass approach for blur effects (horizontal then vertical)\n\n## Cross-Platform\n- Test shaders on minimum spec target hardware\n- Provide fallback/simplified versions for lower quality tiers\n- Document which render pipeline the shader targets (Forward/Deferred, URP/HDRP, Forward+/Mobile/Compatibility)\n- Do not mix shaders from different render pipelines in the same directory\n\n## Variant Management\n- Minimize shader variants \u2014 each variant is a separate compiled shader\n- Document all keywords/variants and their purpose\n- Use feature stripping where possible to reduce build size\n- Log and monitor total variant count per shader"
+    },
+    {
+      "file": ".claude/rules/test-standards.md",
+      "paths": [
+        "tests/**"
+      ],
+      "body": "# Test Standards\n\n- Test naming: `test_[system]_[scenario]_[expected_result]` pattern\n- Every test must have a clear arrange/act/assert structure\n- Unit tests must not depend on external state (filesystem, network, database)\n- Integration tests must clean up after themselves\n- Performance tests must specify acceptable thresholds and fail if exceeded\n- Test data must be defined in the test or in dedicated fixtures, never shared mutable state\n- Mock external dependencies \u2014 tests should be fast and deterministic\n- Every bug fix must have a regression test that would have caught the original bug\n\n## Examples\n\n**Correct** (proper naming + Arrange/Act/Assert):\n\n```gdscript\nfunc test_health_system_take_damage_reduces_health() -> void:\n    # Arrange\n    var health := HealthComponent.new()\n    health.max_health = 100\n    health.current_health = 100\n\n    # Act\n    health.take_damage(25)\n\n    # Assert\n    assert_eq(health.current_health, 75)\n```\n\n**Incorrect**:\n\n```gdscript\nfunc test1() -> void:  # VIOLATION: no descriptive name\n    var h := HealthComponent.new()\n    h.take_damage(25)  # VIOLATION: no arrange step, no clear assert\n    assert_true(h.current_health < 100)  # VIOLATION: imprecise assertion\n```"
+    },
+    {
+      "file": ".claude/rules/ui-code.md",
+      "paths": [
+        "src/ui/**"
+      ],
+      "body": "# UI Code Rules\n\n- UI must NEVER own or directly modify game state \u2014 display only, use commands/events to request changes\n- All UI text must go through the localization system \u2014 no hardcoded user-facing strings\n- Support both keyboard/mouse AND gamepad input for all interactive elements\n- All animations must be skippable and respect user motion/accessibility preferences\n- UI sounds trigger through the audio event system, not directly\n- UI must never block the game thread\n- Scalable text and colorblind modes are mandatory, not optional\n- Test all screens at minimum and maximum supported resolutions"
+    }
+  ]
+}

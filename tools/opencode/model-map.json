@@ -1,0 +1,10 @@
+{
+  "_comment": "Maps CCGS model tiers to opencode provider/model IDs. Verified 2026-09-17 against a ChatGPT-account Codex OAuth: gpt-5.5 / gpt-5.6-sol / gpt-6-astra respond; gpt-5.3-*, gpt-5.4, gpt-5.4-mini are rejected. Run 'opencode models' and re-probe after changing auth.",
+  "_override_example": "\"overrides\": { \"technical-director\": \"openai/gpt-6-astra\" }",
+  "tiers": {
+    "haiku": "openai/gpt-5.5",
+    "sonnet": "openai/gpt-5.6-sol",
+    "opus": "openai/gpt-6-astra"
+  },
+  "overrides": {}
+}

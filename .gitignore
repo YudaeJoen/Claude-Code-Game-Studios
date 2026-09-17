@@ -139,3 +139,9 @@ $RECYCLE.BIN/
 *.msm
 *.msp
 *.lnk
+
+# === OpenCode runtime (auto-generated on plugin load) ===
+.opencode/node_modules/
+.opencode/.gitignore
+.opencode/package-lock.json
+.opencode/package.json
