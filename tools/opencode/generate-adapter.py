@@ -27,14 +27,16 @@ MODEL_MAP = json.loads((Path(__file__).parent / "model-map.json").read_text())
 ALL_TOOLS = [
     "read", "glob", "grep", "bash", "task",
     "webfetch", "todowrite", "skill", "question", "apply_patch",
+    # MCP tools (opencode.json "mcp"). Names are <server>_<tool> with hyphens
+    # normalised to underscores — verified from a live tool_use event, not docs.
+    "tavily_tavily_search", "tavily_tavily_extract",
 ]
 
 # Claude Code tool name -> opencode tool name.
-#   Write/Edit  -> apply_patch : this build has no separate write/edit tool.
-#   WebSearch   -> webfetch    : DOWNGRADE. No search tool exists in this build,
-#                                so the agent can fetch a known URL but cannot
-#                                discover pages. Add "websearch" here if your
-#                                version registers one.
+#   Write/Edit  -> apply_patch          : this build has no separate write/edit tool.
+#   WebSearch   -> tavily_tavily_search : opencode has no built-in search; the Tavily
+#                                         remote MCP server in opencode.json provides
+#                                         it (needs TAVILY_API_KEY in the environment).
 TOOL_MAP = {
     "Read": "read",
     "Glob": "glob",
@@ -44,11 +46,11 @@ TOOL_MAP = {
     "Bash": "bash",
     "Task": "task",
     "WebFetch": "webfetch",
-    "WebSearch": "webfetch",
+    "WebSearch": "tavily_tavily_search",
 }
 
 # Grants that are a downgrade rather than a faithful mapping, reported per run.
-DOWNGRADED = {"WebSearch": "webfetch (fetch-only; no search)"}
+DOWNGRADED = {}
 
 # Always granted regardless of the Claude-side list:
 #   skill    - CCGS is skill-driven; every agent must be able to load one.

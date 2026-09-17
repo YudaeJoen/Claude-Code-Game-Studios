@@ -140,6 +140,8 @@ python3 tools/opencode/generate-adapter.py --check  # 드리프트 검사
 - 에이전트별 모델(GPT 혼용 포함)은 `tools/opencode/model-map.json` 에서 지정합니다.
   `opencode models` 목록보다 실제 로그인이 허용하는 모델이 적으니, 바꾸기 전에
   `opencode run "Reply OK" --model <id>` 로 탐침하십시오.
+- 웹 검색은 Tavily 호스팅 MCP가 담당합니다. 셸 환경변수 `TAVILY_API_KEY` 가 필요하며,
+  `opencode.json` 에는 `{env:TAVILY_API_KEY}` 참조만 들어갑니다. **키를 파일에 쓰지 마십시오.**
 - opencode는 `CLAUDE.md` 와 `.claude/skills/` 를 직접 읽습니다. **`AGENTS.md`를 만들지
   마십시오** — `CLAUDE.md`를 가려서 진실 공급원이 둘로 갈라집니다.
 - 플러그인 모듈의 **모든 export가 플러그인으로 호출**됩니다. 헬퍼 함수를 export하면

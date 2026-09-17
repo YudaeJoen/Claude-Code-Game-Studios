@@ -8,11 +8,13 @@ tools:
   grep: true
   bash: true
   task: false
-  webfetch: true
+  webfetch: false
   todowrite: false
   skill: true
   question: true
   apply_patch: true
+  tavily_tavily_search: true
+  tavily_tavily_extract: false
 ---
 
 <!-- GENERATED from .claude/agents/analytics-engineer.md — do not edit. Run tools/opencode/generate-adapter.py -->

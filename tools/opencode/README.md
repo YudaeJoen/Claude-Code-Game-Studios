@@ -39,6 +39,8 @@ this repository. All of the following fired and behaved as specified:
 | Path-scoped rules | `rule delivered: .claude/rules/gameplay-code.md for src/gameplay/ccgs_probe.gd` |
 | Read-path denial | `read` of `.env.example` returned tool error `CCGS: reading .env.example is denied (secrets).`; fixture value not disclosed. (A plain `.env` prompt never reached the hook — the model refused on its own, so that run proved nothing.) |
 | Stop | `session.idle` → `session-stop.sh -> exit 0` |
+| Web search via Tavily MCP | `tavily_tavily_search -> completed`, real URL returned (13 s) |
+| Per-agent MCP gating | primary-mode probes: `tavily_tavily_search: true` searched; `false` and `tavily_*: false` both got no search tool |
 
 Not yet exercised at runtime: `maxTurns` (needs a subagent exceeding its cap),
 PreCompact/PostCompact (needs a compaction), `log-agent*.sh` (needs a `task` call).
@@ -53,6 +55,36 @@ CCGS_HOOK_DEBUG=1 opencode run "Reply with exactly: OK" --format json --print-lo
 
 `[ccgs]` lines on stderr show every event type, hook script exit code, and rule
 delivery.
+
+## Web search (Tavily MCP)
+
+opencode has no built-in search tool, so `WebSearch` grants are served by Tavily's
+hosted MCP endpoint, declared in `opencode.json`:
+
+```json
+"mcp": {
+  "tavily": {
+    "type": "remote",
+    "url": "https://mcp.tavily.com/mcp/?tavilyApiKey={env:TAVILY_API_KEY}",
+    "enabled": true
+  }
+}
+```
+
+The key lives only in the environment. Put it in your shell profile:
+
+```bash
+echo 'export TAVILY_API_KEY="tvly-..."' >> ~/.zshrc && source ~/.zshrc
+```
+
+`{env:}` substitution works inside `url` (verified: `opencode mcp list` shows
+`tavily connected`). Without the variable the server fails to connect and the 9
+research agents simply have no search tool; nothing else breaks. Tavily's free tier
+is 1,000 credits a month with no card, which covers this project's usage (Brave
+dropped its free tier in February 2026).
+
+The remote endpoint matters here: this machine has no `node`, `npx`, or `bun` on
+PATH, so an npx-launched local MCP server could not run.
 
 ## Mixing providers
 
@@ -106,6 +138,7 @@ To run CCGS agents on Claude under opencode, authenticate Anthropic first
 | `settings.json` permissions | `permission` in `opencode.json` | opencode supports command-glob and path-glob patterns, so this is faithful. |
 | `.claude/rules/*.md` | plugin, `tool.execute.after` | Delivered on first edit of a governed path, once per rule per session. Not in `instructions` — that would defeat the scoping. |
 | `maxTurns` | plugin, `tool.execute.before` | Per-agent ceiling from the manifest. |
+| `WebSearch` | Tavily remote MCP, `tavily_tavily_search` | 9 research agents get it; every other agent gets `false`. |
 
 ### Hook-by-hook
 
@@ -124,6 +157,18 @@ To run CCGS agents on Claude under opencode, authenticate Anthropic first
 
 Everything below was hit while building this. None produced an error message.
 
+- **`opencode run --agent <name>` hangs when `<name>` is a `mode: subagent` agent.**
+  It stops after `init` with no session, no error, forever. Every generated CCGS
+  agent is a subagent, so drive them through the primary agent's `task` tool or
+  make a throwaway `mode: primary` probe. This is the one reproducible stall.
+- **MCP tool names are `<server>_<tool>` with hyphens turned into underscores.**
+  Tavily's `tavily-search` becomes `tavily_tavily_search`. Read the name from a
+  live `tool_use` event; do not derive it from the server's docs.
+- **`opencode debug agent` never shows MCP keys** in the resolved `tools` map, in
+  exact or wildcard form — but the map is honoured at runtime (verified with
+  probes). Absence in debug output is not evidence the grant was dropped.
+- **`opencode mcp list` prints the resolved URL, API key included.** Do not run it
+  where the terminal is shared or logged.
 - **Every export of a plugin module is invoked as a plugin.** Exporting a helper
   function makes opencode call it with `PluginInput` and log
   `failed to load plugin … x.replace is not a function`. Keep helpers un-exported.
@@ -135,8 +180,8 @@ Everything below was hit while building this. None produced an error message.
 - **The tool registry is not what the docs list.** This build registers
   `read glob grep bash task webfetch todowrite skill question apply_patch` — no
   `write`, `edit`, `lsp`, `websearch`. Unknown keys in an agent's `tools:` are dropped
-  without warning. `Write`/`Edit` map to `apply_patch`; `WebSearch` is downgraded to
-  `webfetch` (9 agents — fetch a URL, no discovery).
+  without warning. `Write`/`Edit` map to `apply_patch`; `WebSearch` maps to the
+  Tavily MCP tool (see below).
 - **Duplicate keys in `tools:` discard the whole agent file** and fall back to
   defaults, silently. Confirm with `opencode debug agent <name>`.
 - **`apply_patch` reports touched files in `output.metadata.files[]`**
@@ -155,9 +200,6 @@ only `name`, `description`, `license`, `compatibility`, `metadata` from `SKILL.m
 generated command wrapper restores the tier for slash-command invocation, not for
 direct `skill` tool loads. Closing it means patching skill loading in core — the one
 genuine fork candidate.
-
-**`websearch`.** A custom tool (`.opencode/tools/websearch.ts`) would close it, but it
-needs a search API key and provider choice. Unbuilt pending that decision.
 
 **Status line.** `@opencode-ai/plugin/tui` exposes routes and keymaps, so a TUI plugin
 is feasible; it is a rewrite, not a port. Unbuilt.
