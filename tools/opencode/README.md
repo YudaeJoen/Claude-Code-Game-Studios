@@ -18,13 +18,48 @@ python3 tools/opencode/generate-adapter.py --check  # CI: fail if out of date
 Run it after editing any agent, skill, or rule. Then **restart opencode** — config,
 agents, and plugins are loaded once at startup and never hot-reloaded.
 
-**The first session in a directory opencode has not seen before usually stalls.**
-Observed in 4 of 5 fresh directories (non-interactive `opencode run`): the log ends at
-`message=init`, the session is never created, and nothing errors. The second session
-in the same directory succeeded every time (3 of 3, 6-7 s). One fresh clone did start
-first time in 8 s, so it is non-deterministic. Workaround: run once, kill it if there
-is no `session.created` within a minute, run again. A separate, deterministic stall
-is `opencode run --agent <subagent-mode agent>` — see the gotchas list.
+## Non-interactive `opencode run` stalls — use the TUI or desktop app for real work
+
+Across ~40 non-interactive runs on this machine, `opencode run` repeatedly hung
+*before* creating a session: the log ends at `message=init` (sometimes followed by
+`cleanup prune=7.days`), no `session.created` event, no error, and the process sits
+idle until killed. During a stall nothing happens locally — the sqlite DB and WAL do
+not change, no git or child process exists, the plugin has already loaded.
+
+What is **ruled out**, each by direct test: the project directory (the same directory
+stalls and then works), the OpenCode desktop app (stalls with it fully quit and
+nothing holding the DB), stale locks or git mirrors (none exist), auto-update
+(`autoupdate: false` changes nothing), and the CCGS plugin (`--pure` runs stall or
+succeed the same way as normal runs).
+
+What is **observed**: trivial prompts such as `Reply with exactly: OK` succeed in
+4-9 s almost every time, even when launched at the same moment as a run that stalls.
+Runs that stall reliably are `opencode run --command <any>` (even a one-line command
+file), `opencode run --agent <subagent-mode agent>`, a message that is a slash
+command (`"/start"`), and prompts that tell the model to load a skill. Runs that
+exercise tools (`bash`, `read`, `apply_patch`, Tavily search) succeeded at other
+times, so the trigger is not simply "uses tools".
+
+The interactive TUI and the desktop app are the supported way to use CCGS under
+opencode; the non-interactive runner was only ever a test harness here. If you must
+script `opencode run`, keep the prompt plain, avoid `--command` and `--agent`, and
+kill-and-retry after 60 s without `session.created` (`CCGS_HOOK_DEBUG=1` shows it).
+
+**Do not set `OPENCODE_DISABLE_CLAUDE_CODE_SKILLS` or `OPENCODE_DISABLE_CLAUDE_CODE`.**
+Those switches (found in the binary) turn off the Claude-compatibility layer that
+makes opencode read `CLAUDE.md` and `.claude/skills/`, which this adapter relies on.
+
+## Running /start
+
+```bash
+cd ~/Projects/Claude-Code-Game-Studios
+opencode          # TUI; or open the folder in the OpenCode desktop app
+```
+
+Then type `/start`. It is an interactive onboarding skill: it asks where you are
+(no idea / vague concept / clear design / existing work) through the `question`
+tool and routes you to the right workflow. If the TUI hangs on its start screen,
+quit and reopen it once.
 
 ## Verified end to end (opencode 1.18.29-1.18.30, 2026-09-17)
 
