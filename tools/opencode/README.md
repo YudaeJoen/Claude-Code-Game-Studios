@@ -18,9 +18,11 @@ python3 tools/opencode/generate-adapter.py --check  # CI: fail if out of date
 Run it after editing any agent, skill, or rule. Then **restart opencode** — config,
 agents, and plugins are loaded once at startup and never hot-reloaded.
 
-The first session in a freshly cloned directory can appear to hang for several
-minutes while opencode registers the project (observed twice, non-interactive mode).
-Subsequent sessions start in about a second. Wait it out once, or open the TUI first.
+Two non-interactive `opencode run` invocations stalled before `session.created` and
+were killed after 3-4 minutes. The cause was not identified: a fresh clone's first
+session started in 8 seconds, so it is not first-run project registration. If a run
+shows no `session.created` within a minute under `CCGS_HOOK_DEBUG=1`, kill it and
+retry; every retry succeeded.
 
 ## Verified end to end (opencode 1.18.29, 2026-09-17)
 
