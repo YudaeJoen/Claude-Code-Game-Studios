@@ -49,6 +49,32 @@ kill-and-retry after 60 s without `session.created` (`CCGS_HOOK_DEBUG=1` shows i
 Those switches (found in the binary) turn off the Claude-compatibility layer that
 makes opencode read `CLAUDE.md` and `.claude/skills/`, which this adapter relies on.
 
+## Scripting opencode without the stalling client
+
+The stall above is in the `opencode run` *client's* own bootstrap, not the server:
+a headless server starts in about a second and processes everything normally. To
+drive CCGS from a script, talk to the server's REST API directly:
+
+```bash
+opencode serve --port 4097 --hostname 127.0.0.1          # long-lived, once
+curl -X POST localhost:4097/session -H 'content-type: application/json' \
+     -d '{"title":"onboarding"}'                            # -> {"id":"ses_..."}
+curl -X POST localhost:4097/session/ses_.../command \
+     -H 'content-type: application/json' -d '{"command":"start","arguments":""}'
+curl localhost:4097/question                               # pending question tool calls
+curl -X POST localhost:4097/question/que_.../reply \
+     -H 'content-type: application/json' -d '{"answers":[["A) No idea yet"]]}'
+curl localhost:4097/permission                             # pending permission asks
+curl -X POST localhost:4097/permission/per_.../reply \
+     -H 'content-type: application/json' -d '{"reply":"once"}'
+curl localhost:4097/session/ses_.../message                # transcript
+```
+
+`GET /doc` serves the full OpenAPI spec. Question answers are arrays of the exact
+option labels. `/start` was driven end to end this way in this repository: skill
+load, Phase 1 detection, three `question` calls, and the `apply_patch` write of
+`production/review-mode.txt`, with the session-start and edit-gate hooks firing.
+
 ## Running /start
 
 ```bash
