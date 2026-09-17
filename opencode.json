@@ -8,7 +8,10 @@
     ".claude/docs/coordination-rules.md",
     ".claude/docs/coding-standards.md",
     ".claude/docs/context-management.md",
-    "docs/engine-reference/godot/VERSION.md"
+    "docs/engine-reference/godot/VERSION.md",
+    "src/CLAUDE.md",
+    "design/CLAUDE.md",
+    "docs/CLAUDE.md"
   ],
   "permission": {
     "bash": {
@@ -28,7 +31,11 @@
       "git clean -f*": "deny",
       "sudo *": "deny",
       "chmod 777*": "deny",
-      "cat *.env*": "deny"
+      "cat *.env*": "deny",
+      "dir *": "allow",
+      "py -m pytest*": "allow",
+      "type *.env*": "deny",
+      "*>.env*": "deny"
     },
     "edit": {
       "*": "ask",

@@ -172,7 +172,8 @@ To run CCGS agents on Claude under opencode, authenticate Anthropic first
 | slash commands | `.opencode/commands/*.md` | Generated wrappers that call `skill({ name })`. |
 | `.claude/hooks/*.sh` | `.opencode/plugins/ccgs-hooks.ts` | Scripts run **unmodified**; the plugin feeds them Claude Code's stdin JSON and honours exit 2 = block. |
 | `CLAUDE.md` `@` imports | `instructions` in `opencode.json` | opencode does not expand `@` imports. |
-| `settings.json` permissions | `permission` in `opencode.json` | opencode supports command-glob and path-glob patterns, so this is faithful. |
+| `src/CLAUDE.md`, `design/CLAUDE.md`, `docs/CLAUDE.md` | `instructions` in `opencode.json` | Claude Code loads these when working inside that directory; opencode only walks *up* from cwd, so they are always-on here (~540 words). |
+| `settings.json` permissions | `permission` in `opencode.json` | All 21 rules ported. `Read(**/.env*)` is enforced by the plugin. The redirect pattern `*>.env*` is carried over verbatim but unverified against opencode's command parser. |
 | `.claude/rules/*.md` | plugin, `tool.execute.after` | Delivered on first edit of a governed path, once per rule per session. Not in `instructions` — that would defeat the scoping. |
 | `maxTurns` | plugin, `tool.execute.before` | Per-agent ceiling from the manifest. |
 | `WebSearch` | Tavily remote MCP, `tavily_tavily_search` | 9 research agents get it; every other agent gets `false`. |
