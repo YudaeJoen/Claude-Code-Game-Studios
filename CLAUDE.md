@@ -150,8 +150,8 @@ python3 tools/opencode/generate-adapter.py --check  # 드리프트 검사
 - 플러그인 모듈의 **모든 export가 플러그인으로 호출**됩니다. 헬퍼 함수를 export하면
   로드가 조용히 실패합니다.
 
-실측 검증 결과, 훅별 매핑, 조용히 실패하는 함정 목록, 아직 열린 갭(스킬별 모델
-티어, websearch, statusline)은 `tools/opencode/README.md` 에 있습니다.
+실측 검증 결과, 훅별 매핑, 조용히 실패하는 함정 목록, 서버 API로 스크립팅하는 방법,
+아직 열린 갭(스킬별 모델 티어, statusline)은 `tools/opencode/README.md` 에 있습니다.
 
 ## 개수 동기화
 
