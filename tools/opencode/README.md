@@ -103,7 +103,7 @@ this repository. All of the following fired and behaved as specified:
 | Read-path denial | `read` of `.env.example` returned tool error `CCGS: reading .env.example is denied (secrets).`; fixture value not disclosed. (A plain `.env` prompt never reached the hook — the model refused on its own, so that run proved nothing.) |
 | Stop | `session.idle` → `session-stop.sh -> exit 0` |
 | Web search via Tavily MCP | `tavily_tavily_search -> completed`, real URL returned (13 s) |
-| Per-agent MCP gating | primary-mode probes: `tavily_tavily_search: true` searched; `false` and `tavily_*: false` both got no search tool |
+| Per-agent MCP gating | Probes built from the real generated `tools:` blocks: a research agent sees only `tavily_tavily_search`; a non-research agent sees no Tavily tool at all |
 
 Not yet exercised at runtime: `maxTurns` (needs a subagent exceeding its cap),
 PreCompact/PostCompact (needs a compaction), `log-agent*.sh` (needs a `task` call).
@@ -202,7 +202,7 @@ To run CCGS agents on Claude under opencode, authenticate Anthropic first
 | `settings.json` permissions | `permission` in `opencode.json` | All 21 rules ported. `Read(**/.env*)` is enforced by the plugin. The redirect pattern `*>.env*` is carried over verbatim but unverified against opencode's command parser. |
 | `.claude/rules/*.md` | plugin, `tool.execute.after` | Delivered on first edit of a governed path, once per rule per session. Not in `instructions` — that would defeat the scoping. |
 | `maxTurns` | plugin, `tool.execute.before` | Per-agent ceiling from the manifest. |
-| `WebSearch` | Tavily remote MCP, `tavily_tavily_search` | 9 research agents get it; every other agent gets `false`. |
+| `WebSearch` | Tavily remote MCP, `tavily_tavily_search` | 9 research agents get it. All 49 agents first get `"tavily_*": false`, so the server's other five tools reach no one. |
 
 ### Hook-by-hook
 
@@ -225,6 +225,14 @@ Everything below was hit while building this. None produced an error message.
   It stops after `init` with no session, no error, forever. Every generated CCGS
   agent is a subagent, so drive them through the primary agent's `task` tool or
   make a throwaway `mode: primary` probe. This is the one reproducible stall.
+- **An MCP tool you did not name is enabled for every agent.** Tavily's docs list two
+  tools; the server exposes six (`search`, `extract`, `crawl`, `map`, `research`,
+  `feedback`). With only `search`/`extract` set `false`, a probe agent listed the
+  other four and successfully called `tavily_tavily_research`. The generator now
+  emits `"tavily_*": false` for all 49 agents and any grant *after* it.
+- **The `tools:` map is ordered and the last match wins.** `"tavily_*": false` then
+  `tavily_tavily_search: true` leaves search usable; the reverse order blocks
+  everything. Add each new MCP server's prefix to `MCP_PREFIXES` in the generator.
 - **MCP tool names are `<server>_<tool>` with hyphens turned into underscores.**
   Tavily's `tavily-search` becomes `tavily_tavily_search`. Read the name from a
   live `tool_use` event; do not derive it from the server's docs.

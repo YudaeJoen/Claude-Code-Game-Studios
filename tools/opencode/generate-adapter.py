@@ -27,10 +27,17 @@ MODEL_MAP = json.loads((Path(__file__).parent / "model-map.json").read_text())
 ALL_TOOLS = [
     "read", "glob", "grep", "bash", "task",
     "webfetch", "todowrite", "skill", "question", "apply_patch",
-    # MCP tools (opencode.json "mcp"). Names are <server>_<tool> with hyphens
-    # normalised to underscores — verified from a live tool_use event, not docs.
-    "tavily_tavily_search", "tavily_tavily_extract",
 ]
+
+# MCP servers declared in opencode.json. An MCP server exposes whatever tools it
+# likes, and any tool NOT named in an agent's map is enabled by default — Tavily
+# ships six (search, extract, crawl, map, research, feedback), not the two its docs
+# list, and a probe agent with only search/extract set false happily called
+# tavily_tavily_research. So every agent first gets "<prefix>*: false", and grants
+# are emitted AFTER it: opencode applies the map in order and the last match wins
+# (verified both ways). Add a prefix here for every MCP server you add, or all 49
+# agents receive all of its tools.
+MCP_PREFIXES = ["tavily_"]
 
 # Claude Code tool name -> opencode tool name.
 #   Write/Edit  -> apply_patch          : this build has no separate write/edit tool.
@@ -143,8 +150,12 @@ def build_agent(path, report):
         lines.append(f"model: {model}")
     granted.update(ALWAYS_ON)
     lines.append("tools:")
-    for tool in ALL_TOOLS:  # ALL_TOOLS is the full key set — emit each key exactly
+    for tool in ALL_TOOLS:  # built-ins: closed set, each key exactly once
         lines.append(f"  {tool}: {'true' if tool in granted else 'false'}")
+    for prefix in MCP_PREFIXES:  # deny the whole server first ...
+        lines.append(f'  "{prefix}*": false')
+    for tool in sorted(granted - set(ALL_TOOLS)):  # ... then grant, so the grant wins
+        lines.append(f"  {tool}: true")
     lines.append("---")
     lines.append("")
     lines.append(f"<!-- GENERATED from .claude/agents/{path.name} — do not edit."

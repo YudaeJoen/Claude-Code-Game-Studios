@@ -13,8 +13,7 @@ tools:
   skill: true
   question: true
   apply_patch: true
-  tavily_tavily_search: false
-  tavily_tavily_extract: false
+  "tavily_*": false
 ---
 
 <!-- GENERATED from .claude/agents/community-manager.md — do not edit. Run tools/opencode/generate-adapter.py -->

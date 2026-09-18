@@ -142,6 +142,9 @@ python3 tools/opencode/generate-adapter.py --check  # 드리프트 검사
   `opencode run "Reply OK" --model <id>` 로 탐침하십시오.
 - 웹 검색은 Tavily 호스팅 MCP가 담당합니다. 셸 환경변수 `TAVILY_API_KEY` 가 필요하며,
   `opencode.json` 에는 `{env:TAVILY_API_KEY}` 참조만 들어갑니다. **키를 파일에 쓰지 마십시오.**
+- **MCP 서버를 추가하면 생성기의 `MCP_PREFIXES` 에 접두사를 반드시 추가하십시오.** 이름을
+  지정하지 않은 MCP 도구는 모든 에이전트에 기본 허용됩니다. 생성기는 `"<접두사>*": false` 를
+  먼저, 허용은 그 뒤에 출력합니다(`tools:` 맵은 순서대로 적용되고 마지막 일치가 이깁니다).
 - opencode는 `CLAUDE.md` 와 `.claude/skills/` 를 직접 읽습니다. **`AGENTS.md`를 만들지
   마십시오** — `CLAUDE.md`를 가려서 진실 공급원이 둘로 갈라집니다.
 - 플러그인 모듈의 **모든 export가 플러그인으로 호출**됩니다. 헬퍼 함수를 export하면
